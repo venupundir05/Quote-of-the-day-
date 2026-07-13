@@ -36,7 +36,6 @@ app.get('/api/quotes', (req, res) => {
 });
 
 app.get('/api/quotes/random', (req, res) => {
-  // Array me se random index chunne ka logic
   const randomIndex = Math.floor(Math.random() * quotes.length);
   const randomQuote = quotes[randomIndex];
   
