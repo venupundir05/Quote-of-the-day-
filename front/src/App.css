@@ -1,0 +1,172 @@
+/* Base Page Styling */
+body {
+  margin: 0;
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(135deg, #74ebd5 0%, #9face6 100%);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.app-container {
+  text-align: center;
+  width: 90%;
+  max-width: 600px;
+  padding: 20px;
+}
+
+h1 {
+  color: #fff;
+  text-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
+  margin-bottom: 25px;
+  font-size: 2.5rem;
+}
+
+/* Quote Card Container */
+.quote-card {
+  background: white;
+  border-radius: 20px;
+  padding: 40px 30px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  margin-bottom: 25px;
+}
+
+.quote-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+}
+
+/* Quote Text & Author */
+.quote-text {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #2c3e50;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.quote-author {
+  font-size: 1.1rem;
+  font-style: italic;
+  color: #7f8c8d;
+  text-align: right;
+  display: block;
+  margin-bottom: 10px;
+}
+
+/* Control Buttons (Inside Card) */
+.card-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 20px;
+  border-top: 1px solid #f1f2f6;
+  padding-top: 15px;
+}
+
+.icon-btn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: transform 0.2s ease;
+}
+
+.icon-btn:hover {
+  transform: scale(1.2);
+}
+
+/* Action Button (New Quote) */
+.btn-primary {
+  background: #6c5ce7;
+  color: white;
+  border: none;
+  padding: 12px 25px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  border-radius: 30px;
+  cursor: pointer;
+  box-shadow: 0 5px 15px rgba(108, 92, 231, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background: #5b4bc4;
+  box-shadow: 0 8px 20px rgba(108, 92, 231, 0.6);
+  transform: translateY(-2px);
+}
+
+/* Search Bar Styling */
+.search-container {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.search-input {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 30px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  font-size: 1rem;
+  outline: none;
+}
+
+.search-btn {
+  background: #10ac84;
+  color: white;
+  border: none;
+  padding: 0 20px;
+  border-radius: 30px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 10px rgba(16, 172, 132, 0.3);
+}
+
+/* Favorites Section Styling */
+.favorites-container {
+  background: rgba(255, 255, 255, 0.9);
+  border-radius: 15px;
+  padding: 20px;
+  margin-top: 20px;
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  text-align: left;
+}
+
+.favorites-container h3 {
+  margin-top: 0;
+  color: #2c3e50;
+  border-bottom: 2px solid #6c5ce7;
+  padding-bottom: 8px;
+}
+
+.fav-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 0;
+  border-bottom: 1px solid #eee;
+  gap: 10px;
+}
+
+.fav-item:last-child {
+  border-bottom: none;
+}
+
+.fav-text {
+  font-size: 0.95rem;
+  color: #34495e;
+}
+
+.remove-fav {
+  background: none;
+  border: none;
+  color: #ff7675;
+  cursor: pointer;
+  font-size: 1.1rem;
+}
