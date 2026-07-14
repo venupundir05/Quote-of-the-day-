@@ -8,7 +8,7 @@ const PORT = 5000;
 app.use(cors());
 app.use(express.json());
 
-const quotes = [
+let quotes = [
   { text: "Arise, awake, and stop not till the goal is reached.", author: "Swami Vivekananda" },
   { text: "Dream is not that which you see while sleeping it is something that does not let you sleep.", author: "APJ Abdul Kalam" },
   { text: "You must be the change you wish to see in the world.", author: "Mahatma Gandhi" },
@@ -61,19 +61,41 @@ const quotes = [
   { text: "What we think, we become.", author: "Buddha" }
  
 ];
-
+quotes = quotes.map((quote, index) => ({ ...quote, id: index + 1 }));
 app.get('/api/quotes', (req, res) => {
+  const {author} = req.query;
+
+  if (author) {
+    const filteredQuotes = quotes.filter(quote => quote.author.toLowerCase().includes(author.toLowerCase()));
+    return res.json(filteredQuotes);
+  }
   res.json(quotes);
 });
 
 app.get('/api/quotes/random', (req, res) => {
+  if (quotes.length === 0) {
+    return res.status(404).json({ message: "No quotes available." });
+  }
   const randomIndex = Math.floor(Math.random() * quotes.length);
-  const randomQuote = quotes[randomIndex];
-  
-  
-  res.json(randomQuote);
+  res.json(quotes[randomIndex]);
+});
+
+app.post('/api/quotes', (req, res) => {
+  const { text, author } = req.body;
+  if (!text || !author) {
+    return res.status(400).json({ message: "Both text and author are required." });
+  }
+
+  const newQuote = {
+    id: quotes.length + 1,
+    text: text,
+    author: author
+  };
+
+  quotes.push(newQuote);
+  res.status(201).json({message: "Quote added successfully!", quote: newQuote});
 });
 
 app.listen(PORT, () => {
-  console.log(`Backend Server running on http://localhost:${PORT}`);
+  console.log(`Moderate Backend Server running on http://localhost:${PORT}`);
 });
