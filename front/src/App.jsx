@@ -259,7 +259,7 @@ function App() {
               </h4>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '8px' }}>
                 <i className="fa-solid fa-envelope" style={{ marginRight: '8px' }}></i> 
-                <strong>Email:</strong> veenupundir05@gmail.com
+                <strong>Email:</strong> quoteday05@gmail.com
               </p>
               <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
                 <i className="fa-brands fa-linkedin" style={{ marginRight: '8px' }}></i> 

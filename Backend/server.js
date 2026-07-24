@@ -2,13 +2,11 @@ const express = require('express');
 const cors = require('cors');
 
 const app = express();
-const PORT = 5000;
-
 app.use(cors());
 app.use(express.json());
 
-// Dynamic Data Matrix: Mixing Anime Quotes, Global Legends & Affirmations
- let items = [
+
+ const quotesData = [
   // --- Anime Quotes Category ---
   { text: "If you don't like your destiny, don't accept it. Instead, have the courage to change it the way you want it to be.", author: "Naruto Uzumaki", category: "Anime" },
   { text: "If you lose credibility, nobody will trust you anymore.", author: "Fujitora (One Piece)", category: "Anime" },
@@ -703,27 +701,36 @@ app.use(express.json());
   ];
 
 
-// Automatically index everything on startup (Tareeka 2)
-database = database.map((item, index) => ({ id: index + 1, ...item }));
-
-// Core Search & Folder Filter API Engine
 app.get('/api/quotes', (req, res) => {
-  const { author, category } = req.query;
-  let filtered = [...database];
+  const { category, author } = req.query;
 
-  if (category && category.toLowerCase() !== 'all') {
-    filtered = filtered.filter(q => q.category.toLowerCase() === category.toLowerCase());
+  let filteredQuotes = quotesData;
+
+  // Filter by Category (Case-insensitive check)
+  if (category && category !== 'All' && !category.startsWith('Search:')) {
+    filteredQuotes = filteredQuotes.filter(
+      q => q.category.toLowerCase() === category.toLowerCase()
+    );
   }
+
+  // Filter by Search Query
   if (author) {
-    filtered = filtered.filter(q => q.author.toLowerCase().includes(author.toLowerCase()) || q.text.toLowerCase().includes(author.toLowerCase()));
+    filteredQuotes = filteredQuotes.filter(
+      q => q.author.toLowerCase().includes(author.toLowerCase()) || 
+           q.text.toLowerCase().includes(author.toLowerCase())
+    );
   }
-  res.json(filtered);
+
+  res.json(filteredQuotes);
 });
 
-// Random Endpoint
+// Random Quote Endpoint for Hero Banner
 app.get('/api/quotes/random', (req, res) => {
-  const randomIndex = Math.floor(Math.random() * database.length);
-  res.json(database[randomIndex]);
+  const randomIndex = Math.floor(Math.random() * quotesData.length);
+  res.json(quotesData[randomIndex]);
 });
 
-app.listen(PORT, () => console.log(`CORS-enabled server running on port ${PORT}`));
+const PORT = 5000;
+app.listen(PORT, () => {
+  console.log('Comprehensive Engine Running on Port ${PORT}');
+});
