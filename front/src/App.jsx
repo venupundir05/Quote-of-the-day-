@@ -11,7 +11,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAboutModal, setShowAboutModal] = useState(false);
 
-  const API_URL = "http://quote-of-the-day.onrender.com/api/quotes";
+  const API_URL = "./quotes.json";
 
   // Categories with Professional FontAwesome Icons
   const folderStructure = [
@@ -33,24 +33,27 @@ function App() {
 
   const fetchRandomHeroQuote = async () => {
     try {
-      const res = await axios.get(`${API_URL}/random`);
-      setMainQuote(res.data);
-    } catch (err) {
-      console.error("Backend Error:", err);
+      const res = await axios.get(API_URL);
+    if (res.data && res.data.length > 0) {
+      const randomIndex = Math.floor(Math.random() * res.data.length);
+      setMainQuote(res.data[randomIndex]);
     }
+  } catch (err) {
+    console.error(err);
+  }
   };
 
   const fetchFolderData = async (folderName) => {
     try {
-      let url = API_URL;
-      if (folderName !== 'All') {
-        url = `${API_URL}?category=${folderName}`;
-      }
-      const res = await axios.get(url);
+      const res = await axios.get(API_URL);
+    if (folderName === 'All') {
       setFolderQuotes(res.data);
-      setActiveFolder(folderName);
-    } catch (err) {
-      console.error(err);
+    } else {
+      const filtered = res.data.filter(q => q.category === folderName);
+      setFolderQuotes(filtered);
+    }
+  } catch (err) {
+    console.error(err);
     }
   };
 
