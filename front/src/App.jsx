@@ -3,41 +3,41 @@ import axios from 'axios';
 import './App.css';
 
 function App() {
-  // Navigation State Control View: 'home' | 'categories' | 'favorites' | 'about'
   const [currentView, setCurrentView] = useState('home');
-  
-  // Data States
-  const [mainQuote, setMainQuote] = useState({ text: "Loading...", author: "System", category: "Anime" });
+  const [mainQuote, setMainQuote] = useState({ text: "Loading quote...", author: "System", category: "Anime" });
   const [folderQuotes, setFolderQuotes] = useState([]);
   const [activeFolder, setActiveFolder] = useState('All');
   const [bookmarks, setBookmarks] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [showAboutModal, setShowAboutModal] = useState(false);
 
   const API_URL = "http://localhost:5000/api/quotes";
 
-  // Exact UI folders matrix match
+  // Categories with Professional FontAwesome Icons
   const folderStructure = [
-    { name: "Anime", icon: "🥷" },
-    { name: "Affirmations", icon: "🧠" },
-    { name: "Motivation", icon: "📈" },
-    { name: "Success", icon: "🏆" },
-    { name: "Study", icon: "🎓" },
-    { name: "Life", icon: "🌱" },
-    { name: "Leadership", icon: "👥" }
+    { name: "Anime", icon: "fa-solid fa-wand-magic-sparkles" },
+    { name: "Affirmations", icon: "fa-solid fa-brain" },
+    { name: "Motivation", icon: "fa-solid fa-fire" },
+    { name: "Success", icon: "fa-solid fa-trophy" },
+    { name: "Study", icon: "fa-solid fa-graduation-cap" },
+    { name: "Life", icon: "fa-solid fa-compass" },
+    { name: "Leadership", icon: "fa-solid fa-crown" }
   ];
 
-  // Load baseline framework actions
   useEffect(() => {
     fetchRandomHeroQuote();
     fetchFolderData('All');
-    setBookmarks(JSON.parse(localStorage.getItem("sparkFavs")) || []);
+    const saved = JSON.parse(localStorage.getItem("sparkFavs")) || [];
+    setBookmarks(saved);
   }, []);
 
   const fetchRandomHeroQuote = async () => {
     try {
       const res = await axios.get(`${API_URL}/random`);
       setMainQuote(res.data);
-    } catch (err) { console.error("Server down/refused.", err); }
+    } catch (err) {
+      console.error("Backend Error:", err);
+    }
   };
 
   const fetchFolderData = async (folderName) => {
@@ -49,79 +49,95 @@ function App() {
       const res = await axios.get(url);
       setFolderQuotes(res.data);
       setActiveFolder(folderName);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
+    if (!searchQuery) return;
     try {
       const res = await axios.get(`${API_URL}?author=${searchQuery}`);
       setFolderQuotes(res.data);
-      setCurrentView('categories'); // Shift viewport to folders list to visualize matches
+      setCurrentView('categories');
       setActiveFolder(`Search: "${searchQuery}"`);
-    } catch (err) { console.error(err); }
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const toggleBookmark = (item) => {
     const isPresent = bookmarks.some(b => b.id === item.id);
-    let updated;
-    if (isPresent) {
-      updated = bookmarks.filter(b => b.id !== item.id);
-    } else {
-      updated = [...bookmarks, item];
-    }
+    let updated = isPresent 
+      ? bookmarks.filter(b => b.id !== item.id)
+      : [...bookmarks, item];
+    
     setBookmarks(updated);
     localStorage.setItem("sparkFavs", JSON.stringify(updated));
   };
 
   const copyText = (item) => {
     navigator.clipboard.writeText(`"${item.text}" — ${item.author}`);
-    alert("Quote successfully copied to clipboard! 📋");
+    alert("Quote copied to clipboard! ✨");
   };
 
   return (
     <div>
-      {/* GLOBAL NAVBAR - 100% WORKING TABS */}
+      {/* Glassmorphism Header */}
       <nav className="navbar">
-        <div className="logo" onClick={() => setCurrentView('home')}>✨ QuoteSpark</div>
+        <div className="logo" onClick={() => setCurrentView('home')}>
+          <i className="fa-solid fa-quote-left" style={{ fontSize: '1.8rem', color: '#38BDF8' }}></i>
+          <span>QuoteSpark</span>
+        </div>
         <div className="nav-links">
-          <span className={currentView === 'home' ? 'active' : ''} onClick={() => setCurrentView('home')}>Home</span>
-          <span className={currentView === 'categories' ? 'active' : ''} onClick={() => { setCurrentView('categories'); fetchFolderData('All'); }}>Categories</span>
-          <span className={currentView === 'favorites' ? 'active' : ''} onClick={() => setCurrentView('favorites')}>Favorites ({bookmarks.length})</span>
-          <span className={currentView === 'about' ? 'active' : ''} onClick={() => setCurrentView('about')}>About</span>
+          <div className={`nav-item ${currentView === 'home' ? 'active' : ''}`} onClick={() => setCurrentView('home')}>
+            <i className="fa-solid fa-house"></i> Home
+          </div>
+          <div className={`nav-item ${currentView === 'categories' ? 'active' : ''}`} onClick={() => { setCurrentView('categories'); fetchFolderData('All'); }}>
+            <i className="fa-solid fa-compass"></i> Explore
+          </div>
+          <div className={`nav-item ${currentView === 'favorites' ? 'active' : ''}`} onClick={() => setCurrentView('favorites')}>
+            <i className="fa-solid fa-bookmark"></i> Saved ({bookmarks.length})
+          </div>
+          <div className="nav-item" onClick={() => setShowAboutModal(true)}>
+            <i className="fa-solid fa-circle-info"></i> About
+          </div>
         </div>
       </nav>
 
-      {/* GRADIENT DYNAMIC HERO HEADER */}
+      {/* Hero Banner */}
       <div className="hero-banner">
-        <h2>{currentView === 'home' ? "Quote of the Day" : currentView.toUpperCase()}</h2>
-        <p>Discover inspiring folders and premium content instantly.</p>
+        <h1>{currentView === 'home' ? "Daily Spark of Inspiration" : currentView.toUpperCase()}</h1>
+        <p>Fuel your day with high-impact wisdom, quotes, and affirmations.</p>
       </div>
 
-      {/* CORE DISPLAY ROUTER ENGINE SECTION */}
+      {/* Main Container */}
       <div className="view-container">
-        
-        {/* VIEW 1: HOME SCREEN VIEW */}
         {currentView === 'home' && (
-          <div className="main-layout">
-            {/* Left Side: Hero Cards & Folder Box Navigation */}
+          <div style={{ display: 'grid', gridTemplateColumns: '1.2fr 0.8fr', gap: '30px' }}>
             <div>
-              <div className="main-card">
-                <div className="quote-icon">“</div>
-                <p className="quote-main-text">{mainQuote.text}</p>
-                <span className="quote-author">— {mainQuote.author}</span>
-                <span className="tag-badge">{mainQuote.category}</span>
+              <div className="glass-card">
+                <span className="tag-badge">
+                  <i className="fa-solid fa-bolt"></i> {mainQuote.category}
+                </span>
+                <p className="quote-main-text">“{mainQuote.text}”</p>
+                <p style={{ textAlign: 'right', fontStyle: 'italic', color: 'var(--text-muted)' }}>— {mainQuote.author}</p>
                 
-                <div className="action-row">
-                  <button className="btn btn-primary" onClick={fetchRandomHeroQuote}>New Quote 🔄</button>
-                  <button className="btn btn-accent" onClick={() => toggleBookmark(mainQuote)}>
-                    {bookmarks.some(b => b.id === mainQuote.id) ? "★ Bookmarked" : "☆ Bookmark"}
+                <div className="btn-group">
+                  <button className="btn btn-primary" onClick={fetchRandomHeroQuote}>
+                    <i className="fa-solid fa-rotate"></i> New Quote
                   </button>
-                  <button className="btn btn-outline" onClick={() => copyText(mainQuote)}>Copy Text</button>
+                  <button className="btn btn-outline" onClick={() => toggleBookmark(mainQuote)}>
+                    <i className={`fa-${bookmarks.some(b => b.id === mainQuote.id) ? 'solid' : 'regular'} fa-star`} style={{ color: '#F59E0B' }}></i> Save
+                  </button>
+                  <button className="btn btn-outline" onClick={() => copyText(mainQuote)}>
+                    <i className="fa-regular fa-copy"></i> Copy
+                  </button>
                 </div>
               </div>
 
-              <h3 style={{marginTop: '30px'}} className="folder-view-header">Quick Categories Section</h3>
+              <h3 style={{ marginTop: '35px', marginBottom: '10px' }}>Explore Categories</h3>
               <div className="categories-layout-grid">
                 {folderStructure.map((folder, index) => (
                   <div 
@@ -132,24 +148,22 @@ function App() {
                       fetchFolderData(folder.name);
                     }}
                   >
-                    <div className="category-icon">{folder.icon}</div>
-                    <div style={{fontWeight:'600'}}>{folder.name}</div>
+                    <div className="category-icon">
+                      <i className={folder.icon}></i>
+                    </div>
+                    <div style={{ fontWeight: '600', fontSize: '0.85rem' }}>{folder.name}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* Right Side Dashboard Previews */}
             <div>
-              <h3 className="folder-view-header">Popular Anime Spotlight Stream</h3>
-              <div style={{display:'flex', flexDirection:'column', gap:'15px'}}>
-                {folderQuotes.filter(q => q.category === 'Anime').slice(0, 2).map((q, i) => (
-                  <div key={i} className="display-card">
-                    <p className="display-card-text">"{q.text}"</p>
-                    <div className="display-card-footer">
-                      <span style={{fontSize:'0.85rem', color:'var(--text-s)'}}>— {q.author}</span>
-                      <span className="bookmark-star active" onClick={() => toggleBookmark(q)}>★</span>
-                    </div>
+              <h3>Featured Anime Wisdom</h3>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '15px', marginTop: '15px' }}>
+                {folderQuotes.filter(q => q.category === 'Anime').slice(0, 3).map((q, i) => (
+                  <div key={i} className="glass-card" style={{ padding: '20px' }}>
+                    <p style={{ fontWeight: '500', fontSize: '0.95rem' }}>"{q.text}"</p>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', marginTop: '10px', textAlign: 'right' }}>— {q.author}</p>
                   </div>
                 ))}
               </div>
@@ -157,108 +171,104 @@ function App() {
           </div>
         )}
 
-        {/* VIEW 2: CATEGORIES FOLDER LOOKUP SCREEN VIEW */}
         {currentView === 'categories' && (
           <div>
-            {/* Dynamic Search bar routing capability */}
-            <form className="search-bar-wrap" onSubmit={handleSearch}>
-              <input 
-                type="text" 
-                placeholder="Search quotes or authors (e.g. Naruto, Self, Gandhi)..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)} 
-              />
+            <form className="search-container" onSubmit={handleSearch}>
+              <div className="search-input-wrapper">
+                <i className="fa-solid fa-magnifying-glass"></i>
+                <input 
+                  type="text" 
+                  className="search-input"
+                  placeholder="Search by author or quote..." 
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
               <button type="submit" className="btn btn-primary">Search</button>
             </form>
 
-            {/* Live Folder Selection Strip Buttons */}
-            <div className="categories-layout-grid" style={{marginBottom: '40px'}}>
-              <div 
-                className={`category-box ${activeFolder === 'All' ? 'active' : ''}`}
-                onClick={() => fetchFolderData('All')}
-              >
-                <div className="category-icon">🌐</div>
-                <div style={{fontWeight:'600'}}>All Folders</div>
+            <div className="categories-layout-grid" style={{ marginBottom: '30px' }}>
+              <div className={`category-box ${activeFolder === 'All' ? 'active' : ''}`} onClick={() => fetchFolderData('All')}>
+                <div className="category-icon"><i className="fa-solid fa-border-all"></i></div>
+                <div style={{ fontWeight: '600' }}>All</div>
               </div>
               {folderStructure.map((folder, idx) => (
-                <div 
-                  key={idx} 
-                  className={`category-box ${activeFolder === folder.name ? 'active' : ''}`}
-                  onClick={() => fetchFolderData(folder.name)}
-                >
-                  <div className="category-icon">{folder.icon}</div>
-                  <div style={{fontWeight:'600'}}>{folder.name}</div>
+                <div key={idx} className={`category-box ${activeFolder === folder.name ? 'active' : ''}`} onClick={() => fetchFolderData(folder.name)}>
+                  <div className="category-icon"><i className={folder.icon}></i></div>
+                  <div style={{ fontWeight: '600' }}>{folder.name}</div>
                 </div>
               ))}
             </div>
 
-            {/* Folder Data Grid Output Stream */}
-            <h3 className="folder-view-header">Folder: <span style={{color:'var(--primary)'}}>{activeFolder}</span> ({folderQuotes.length} Items found)</h3>
+            <h3>Folder: <span style={{ color: 'var(--primary-accent)' }}>{activeFolder}</span></h3>
             <div className="quotes-list-grid">
-              {folderQuotes.length === 0 ? (
-                <p>This folder is currently empty.</p>
-              ) : (
-                folderQuotes.map((item, idx) => (
-                  <div key={idx} className="display-card">
-                    <div>
-                      <p className="display-card-text">“{item.text}”</p>
-                      <p style={{fontSize:'0.85rem', fontStyle:'italic', color:'var(--text-s)'}}>— {item.author}</p>
-                    </div>
-                    <div className="display-card-footer">
-                      <span className="tag-badge">{item.category}</span>
-                      <div style={{display:'flex', gap:'10px', alignItems:'center'}}>
-                        <button className="btn btn-outline" style={{padding:'4px 8px', fontSize:'0.75rem'}} onClick={() => copyText(item)}>Copy</button>
-                        <span 
-                          className={`bookmark-star ${bookmarks.some(b => b.id === item.id) ? 'active' : ''}`} 
-                          onClick={() => toggleBookmark(item)}
-                        >
-                          ★
-                        </span>
-                      </div>
+              {folderQuotes.map((item, idx) => (
+                <div key={idx} className="glass-card">
+                  <p style={{ fontWeight: '500', marginBottom: '15px', lineHeight: '1.5' }}>“{item.text}”</p>
+                  <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', fontStyle: 'italic', textAlign: 'right' }}>— {item.author}</p>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', paddingTop: '15px', borderTop: '1px solid var(--card-border)' }}>
+                    <span className="tag-badge">{item.category}</span>
+                    <div style={{ display: 'flex', gap: '12px' }}>
+                      <i className="fa-regular fa-copy" style={{ cursor: 'pointer', color: 'var(--text-muted)' }} onClick={() => copyText(item)}></i>
+                      <i className={`fa-${bookmarks.some(b => b.id === item.id) ? 'solid' : 'regular'} fa-star`} style={{ cursor: 'pointer', color: bookmarks.some(b => b.id === item.id) ? '#F59E0B' : 'var(--text-muted)' }} onClick={() => toggleBookmark(item)}></i>
                     </div>
                   </div>
-                ))
-              )}
+                </div>
+              ))}
             </div>
           </div>
         )}
 
-        {/* VIEW 3: BOOKMARKS / FAVORITES TAB SCREEN VIEW */}
         {currentView === 'favorites' && (
-          <div className="favorites-card">
-            <h3 className="folder-view-header" style={{marginBottom:'20px'}}>Your Bookmarked Collection Store</h3>
+          <div>
+            <h3 style={{ marginBottom: '20px' }}>Saved Favorites</h3>
             {bookmarks.length === 0 ? (
-              <p style={{color: 'var(--text-s)'}}>Your saved collection is empty. Click stars on any quote folder to save them here!</p>
+              <p style={{ color: 'var(--text-muted)' }}>No bookmarks added yet. Click ★ on quotes to save them here!</p>
             ) : (
               <div className="quotes-list-grid">
                 {bookmarks.map((item, idx) => (
-                  <div key={idx} className="display-card">
-                    <p className="display-card-text">“{item.text}”</p>
-                    <div className="display-card-footer">
-                      <span style={{fontSize:'0.85rem', color:'var(--text-s)'}}>— {item.author}</span>
-                      <span className="bookmark-star active" onClick={() => toggleBookmark(item)}>★</span>
-                    </div>
+                  <div key={idx} className="glass-card">
+                    <p style={{ fontWeight: '500' }}>“{item.text}”</p>
+                    <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', marginTop: '10px', textAlign: 'right' }}>— {item.author}</p>
                   </div>
                 ))}
               </div>
             )}
           </div>
         )}
-
-        {/* VIEW 4: ABOUT TAB SCREEN VIEW */}
-        {currentView === 'about' && (
-          <div className="about-card">
-            <h3 className="folder-view-header">About QuoteSpark</h3>
-            <p style={{lineHeight:'1.8', color:'var(--text-p)', marginTop:'15px'}}>
-              Welcome to <strong>QuoteSpark</strong>! This is an interactive dashboard tailored for deep modern layout execution. 
-              Featuring dynamic multi-view routing states, an integrated comprehensive <strong>Affirmation system repository</strong>, 
-              and an expanded <strong>Anime inspiration zone</strong> mapped precisely to your premium color design specification values.
-            </p>
-            <p style={{marginTop:'15px', fontWeight:'600', color:'var(--primary)'}}>Designed with Precision. Mapped with Care.</p>
-          </div>
-        )}
-
       </div>
+
+      {/* About Modal */}
+      {showAboutModal && (
+        <div className="modal-overlay" onClick={() => setShowAboutModal(false)}>
+          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+            <i className="fa-solid fa-xmark close-modal" onClick={() => setShowAboutModal(false)}></i>
+            
+            <div style={{ textAlign: 'center', marginBottom: '20px' }}>
+              <i className="fa-solid fa-quote-left" style={{ fontSize: '2.5rem', color: 'var(--primary-accent)' }}></i>
+              <h2 style={{ marginTop: '10px' }}>About QuoteSpark</h2>
+            </div>
+
+            <p style={{ color: 'var(--text-muted)', lineHeight: '1.6', fontSize: '0.95rem' }}>
+              QuoteSpark is a modern developer-centric web application built to deliver daily motivation, anime insights, and positive affirmations through an interactive dashboard.
+            </p>
+
+            <div className="developer-box">
+              <h4 style={{ marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                <i className="fa-solid fa-code"></i> Developer Profile
+              </h4>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem', marginBottom: '8px' }}>
+                <i className="fa-solid fa-envelope" style={{ marginRight: '8px' }}></i> 
+                <strong>Email:</strong> veenupundir05@gmail.com
+              </p>
+              <p style={{ color: 'var(--text-muted)', fontSize: '0.9rem' }}>
+                <i className="fa-brands fa-linkedin" style={{ marginRight: '8px' }}></i> 
+                <strong>LinkedIn:</strong> <a href="https://linkedin.com" target="_blank" rel="noreferrer">linkedin.com/in/veenu-pundir</a>
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
