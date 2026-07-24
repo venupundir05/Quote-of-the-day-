@@ -11,7 +11,7 @@ function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showAboutModal, setShowAboutModal] = useState(false);
 
-  const API_URL = "http://localhost:5000/api/quotes";
+  const API_URL = "http://quote-of-the-day.onrender.com/api/quotes";
 
   // Categories with Professional FontAwesome Icons
   const folderStructure = [
